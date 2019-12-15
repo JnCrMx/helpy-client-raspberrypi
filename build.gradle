@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group 'de.jcm.helpy'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    implementation group: 'de.jcm.helpy', name: 'library-client', version: '1.0-SNAPSHOT'
+}
