@@ -1,0 +1,8 @@
+client.started=Helpy Client gestartet!
+
+call.announce=Neuer Notruf!
+call.accept=Annehmen
+call.deny=Ablehnen
+
+route.duration=%d Minuten und %d Sekunden
+route.distance=%.0f Meter
