@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'de.jcm.helpy'
@@ -10,10 +11,47 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     mavenLocal()
+    maven { url 'https://jitpack.io' }
+    jcenter();
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
+    testImplementation('org.junit.jupiter:junit-jupiter-params:5.4.2')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
 
-    implementation group: 'de.jcm.helpy', name: 'library-client', version: '1.0-SNAPSHOT'
+    implementation 'de.jcm.helpy:library-client:1.0-SNAPSHOT'
+
+    implementation 'org.apache.commons:commons-configuration2:2.6'
+    implementation 'commons-beanutils:commons-beanutils:1.9.4'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.13'
+
+    implementation 'com.mapbox.mapboxsdk:mapbox-java-services:2.2.9'
+    implementation 'com.github.brianolsen87:text-instructions:0.11.3'
+
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+
+    implementation 'org.mapsforge:mapsforge-core:0.12.0'
+    implementation 'org.mapsforge:mapsforge-map:0.12.0'
+    implementation 'org.mapsforge:mapsforge-map-reader:0.12.0'
+    implementation 'org.mapsforge:mapsforge-themes:0.12.0'
+    implementation 'net.sf.kxml:kxml2:2.3.0'
+
+    implementation 'org.mapsforge:mapsforge-map-awt:0.12.0'
+    implementation 'com.github.blackears:svgSalamander:v1.1.1'
+
+    compile group: 'de.dfki.mary', name: 'marytts-lang-de', version: '5.2'
+    compile group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2'
+    compile group: 'de.dfki.mary', name: 'voice-bits1-hsmm', version: '5.2'
+
+    compile group: 'org.mozilla.deepspeech', name: 'libdeepspeech-desktop', version: '1.0-SNAPSHOT'
+
+    implementation 'org.jetbrains:annotations:15.0'
 }
+
+test {
+    useJUnitPlatform()
+}
+
+mainClassName = 'de.jcm.helpy.client.raspberrypi.HelpyClient'
