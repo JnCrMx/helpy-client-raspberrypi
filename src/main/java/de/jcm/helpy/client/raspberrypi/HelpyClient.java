@@ -7,6 +7,7 @@ import de.jcm.helpy.Call;
 import de.jcm.helpy.EntityInCallState;
 import de.jcm.helpy.api.HelpyApi;
 import de.jcm.helpy.api.authentication.StaticTokenProvider;
+import de.jcm.helpy.client.raspberrypi.instruction.InstructionPanel;
 import de.jcm.helpy.client.raspberrypi.navigation.NavigationPanel;
 import de.jcm.helpy.client.raspberrypi.routing.OSRMApi;
 import de.jcm.helpy.client.raspberrypi.speech.SpeechToText;
@@ -187,6 +188,17 @@ public class HelpyClient extends JFrame
 		announcement.setVisible(false);
 
 		getContentPane().add(new NavigationPanel(this), BorderLayout.CENTER);
+		revalidate();
+		repaint();
+	}
+
+	public void callNavigationArrived()
+	{
+		api.calls().join(currentCall, EntityInCallState.PRESENT);
+
+		//TODO: improve this stupid and ugly solution
+		getContentPane().remove(getContentPane().getComponentCount()-1);
+		getContentPane().add(new InstructionPanel(this), BorderLayout.CENTER);
 		revalidate();
 		repaint();
 	}
