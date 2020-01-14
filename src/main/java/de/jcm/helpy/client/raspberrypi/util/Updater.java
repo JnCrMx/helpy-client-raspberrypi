@@ -6,6 +6,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -15,12 +17,13 @@ import java.util.zip.ZipFile;
 public class Updater
 {
 	private final HelpyClient client;
-	private final File downloadDirectory;
+	@SuppressWarnings("FieldCanBeLocal")
+	public final File downloadDirectory;
 
 	private final boolean contentUpdate;
 	private final String contentBranch;
 	private final File contentZip;
-	private final File contentDirectory;
+	public final File contentDirectory;
 
 	public Updater(HelpyClient client)
 	{
@@ -87,7 +90,7 @@ public class Updater
 			}
 		}
 
-		// We will return before if we don't need to download
+		// We will return; before if we don't need to download
 		System.out.println("Downloading content distribution...");
 		client.api.distributions().content().downloadBranch(contentBranch, contentZip);
 	}
@@ -116,8 +119,9 @@ public class Updater
 				}
 				continue;
 			}
-
-			if(file.exists())
+			if(file.exists() &&
+					// I have no idea how to checksum symlinks, so let's just skip those and always extract symlinks ^^
+					entry.getMethod()!=ZipEntry.STORED)
 			{
 				InputStream in = new CheckedInputStream(new FileInputStream(file), crc32);
 				in.readAllBytes();
@@ -133,18 +137,36 @@ public class Updater
 				}
 			}
 
-			// We will continue if the file doesn't need updating
+			// We will continue; if the file doesn't need updating
 			System.out.println("Extracting \""+entry.getName()+"\" from content distribution to \""+
 					file.getAbsolutePath()+"\"...");
 			try
 			{
-				InputStream in = zip.getInputStream(entry);
-				OutputStream out = new FileOutputStream(file);
+				// We assume that a stored file is a symlink
+				if(entry.getMethod() == ZipEntry.STORED)
+				{
+					InputStream in = zip.getInputStream(entry);
+					String target = new String(in.readAllBytes());
+					in.close();
 
-				IOUtils.copy(in, out);
+					/*
+					 We need to delete the file if it exists in order to avoid a
+					 java.nio.file.FileAlreadyExistsException thrown by Files.createSymbolicLink
+					 */
+					Files.deleteIfExists(file.toPath());
 
-				in.close();
-				out.close();
+					Files.createSymbolicLink(file.toPath(), new File(file.getParent(), target).toPath());
+				}
+				else
+				{
+					InputStream in = zip.getInputStream(entry);
+					OutputStream out = new FileOutputStream(file);
+
+					IOUtils.copy(in, out);
+
+					in.close();
+					out.close();
+				}
 			}
 			catch (IOException e)
 			{

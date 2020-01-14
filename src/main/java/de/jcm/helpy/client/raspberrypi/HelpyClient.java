@@ -63,6 +63,7 @@ public class HelpyClient extends JFrame
 	private Rectangle bounds;
 
 	public File dataDirectory;
+	public Updater updater;
 
 	public HelpyClient() throws ConfigurationException, IllegalStateException,
 			MaryConfigurationException, IOException
@@ -88,11 +89,8 @@ public class HelpyClient extends JFrame
 		setContentPane(panel);
 	}
 
-	private void init() throws ConfigurationException, MaryConfigurationException, IOException
+	private void init() throws ConfigurationException, MaryConfigurationException, IOException, LineUnavailableException
 	{
-		Updater updater = new Updater(this);
-		updater.update();
-
 		dataDirectory = new File(System.getProperty("user.home"), ".helpy");
 		dataDirectory.mkdir();
 
@@ -104,6 +102,9 @@ public class HelpyClient extends JFrame
 		api = new HelpyApi(config.getString("api.url", HelpyApi.BASE_URL));
 		if(!api.authenticate(new StaticTokenProvider(config.getString("api.token"))))
 			throw new IllegalStateException("not authenticated");
+
+		updater = new Updater(this);
+		updater.update();
 
 		self = api.boxes().self();
 
