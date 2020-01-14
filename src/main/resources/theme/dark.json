@@ -1,0 +1,14 @@
+{
+  "fontFamily" : "Liberation Sans",
+  "lookAndFeel" : "@system@",
+  "foreground" : {
+    "blue" : 255,
+    "red" : 255,
+    "green" : 255
+  },
+  "background" : {
+    "blue" : 64,
+    "red" : 64,
+    "green" : 64
+  }
+}

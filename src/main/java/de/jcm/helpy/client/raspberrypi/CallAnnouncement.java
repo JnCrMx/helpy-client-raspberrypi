@@ -45,7 +45,7 @@ public class CallAnnouncement extends JDialog
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 
 		JLabel callLabel = new JLabel(I18n.translate("call.announce"));
-		callLabel.setFont(new Font("Arial", Font.BOLD, 50));
+		callLabel.setFont(client.theme.createFont(Font.BOLD, 50));
 		callLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		contentPane.add(callLabel);
 
@@ -111,14 +111,12 @@ public class CallAnnouncement extends JDialog
 
 			Duration duration = Duration.ofMillis((long) (route.getDuration()*1000.0));
 
-			JLabel durationLabel = new JLabel(I18n.translate("route.duration",
+			JLabel durationLabel = new JLabel(I18n.translate("navigation.duration",
 					duration.toMinutesPart(), duration.toSecondsPart()));
-			durationLabel.setForeground(Color.WHITE);
-			durationLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+			durationLabel.setFont(client.theme.createFont(20));
 
-			JLabel distanceLabel = new JLabel(I18n.translate("route.distance", route.getDistance()));
-			distanceLabel.setForeground(Color.WHITE);
-			distanceLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+			JLabel distanceLabel = new JLabel(I18n.translate("navigation.distance", route.getDistance()));
+			distanceLabel.setFont(client.theme.createFont(20));
 
 			JPanel routeInfoPanel = new JPanel();
 			routeInfoPanel.setLayout(new BoxLayout(routeInfoPanel, BoxLayout.LINE_AXIS));
@@ -133,12 +131,12 @@ public class CallAnnouncement extends JDialog
 
 		JButton acceptButton = new JButton(I18n.translate("call.accept"));
 		acceptButton.setForeground(Color.GREEN);
-		acceptButton.setFont(new Font("Arial", Font.BOLD, 25));
+		acceptButton.setFont(client.theme.createFont(Font.BOLD, 25));
 		acceptButton.addActionListener(e->client.acceptCall(call, route));
 
 		JButton denyButton = new JButton(I18n.translate("call.deny"));
 		denyButton.setForeground(Color.RED);
-		denyButton.setFont(new Font("Arial", Font.BOLD, 25));
+		denyButton.setFont(client.theme.createFont(Font.BOLD, 25));
 		denyButton.addActionListener(e->client.denyCall(call));
 
 		JPanel acceptDenyPanel = new JPanel();

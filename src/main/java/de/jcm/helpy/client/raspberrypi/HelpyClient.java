@@ -1,5 +1,6 @@
 package de.jcm.helpy.client.raspberrypi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapbox.services.api.directions.v5.models.DirectionsRoute;
 import de.jcm.helpy.Box;
 import de.jcm.helpy.Call;
@@ -10,6 +11,7 @@ import de.jcm.helpy.client.raspberrypi.navigation.NavigationPanel;
 import de.jcm.helpy.client.raspberrypi.routing.OSRMApi;
 import de.jcm.helpy.client.raspberrypi.speech.SpeechToText;
 import de.jcm.helpy.client.raspberrypi.speech.TextToSpeech;
+import de.jcm.helpy.client.raspberrypi.util.UITheme;
 import de.jcm.helpy.client.raspberrypi.util.Updater;
 import marytts.exceptions.MaryConfigurationException;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -21,6 +23,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -61,6 +64,7 @@ public class HelpyClient extends JFrame
 	public CallPhase phase;
 
 	private Rectangle bounds;
+	public UITheme theme;
 
 	public File dataDirectory;
 	public Updater updater;
@@ -116,6 +120,28 @@ public class HelpyClient extends JFrame
 		tts = new TextToSpeech();
 		stt = new SpeechToText();
 
+		ObjectMapper mapper = new ObjectMapper();
+		InputStream themeIn = getClass().getResourceAsStream("/theme/"+
+				config.getString("theme", "dark")+".json");
+		theme = mapper.readValue(themeIn, UITheme.class);
+
+		setBackground(theme.background);
+		setForeground(theme.foreground);
+		try
+		{
+			if(theme.lookAndFeel.equals("@system@"))
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			else if(theme.lookAndFeel.equals("@cross-platform@"))
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			else
+				UIManager.setLookAndFeel(theme.lookAndFeel);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		SwingUtilities.updateComponentTreeUI(this);
+
 		CallSearchRunnable searchRunnable = new CallSearchRunnable(this);
 		searchFuture = executor.scheduleWithFixedDelay(searchRunnable, 0, 10, TimeUnit.SECONDS);
 
@@ -166,16 +192,6 @@ public class HelpyClient extends JFrame
 	{
 		EventQueue.invokeLater(()->
 		{
-			try
-			{
-				UIManager.setLookAndFeel(
-						UIManager.getSystemLookAndFeelClassName());
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-
 			HelpyClient client = null;
 			try
 			{
