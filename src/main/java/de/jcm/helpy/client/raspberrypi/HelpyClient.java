@@ -19,6 +19,7 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.jetbrains.annotations.Nullable;
 
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -70,7 +71,7 @@ public class HelpyClient extends JFrame
 	public Updater updater;
 
 	public HelpyClient() throws ConfigurationException, IllegalStateException,
-			MaryConfigurationException, IOException
+			MaryConfigurationException, IOException, LineUnavailableException
 	{
 		super("HelpyBox");
 
@@ -159,6 +160,8 @@ public class HelpyClient extends JFrame
 		{
 			System.out.println("Announcing call: " + call);
 
+			tts.speak(I18n.translate("call.announce"));
+
 			announcement = new CallAnnouncement(this, call, route);
 			announcement.setLocation(bounds.width/2-announcement.getWidth()/2,
 					bounds.height/2-announcement.getHeight()/2);
@@ -198,7 +201,7 @@ public class HelpyClient extends JFrame
 				client = new HelpyClient();
 				client.setVisible(true);
 			}
-			catch (ConfigurationException | MaryConfigurationException | IOException e)
+			catch (ConfigurationException | MaryConfigurationException | IOException | LineUnavailableException e)
 			{
 				e.printStackTrace();
 			}
