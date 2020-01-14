@@ -18,17 +18,11 @@ import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
 import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 import org.mapsforge.map.layer.overlay.Polyline;
-import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.model.Model;
 import org.mapsforge.map.model.common.Observer;
 
 import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -40,6 +34,15 @@ public class NavigationPanel extends JPanel
 	public NavigationPanel(HelpyClient client)
 	{
 		setLayout(new BorderLayout());
+
+		JPanel northPanel = new JPanel();
+
+		JButton arrivedButton = new JButton(I18n.translate("navigation.arrived"));
+		arrivedButton.setFont(client.theme.createFont(50));
+		arrivedButton.addActionListener(e->client.callNavigationArrived());
+		northPanel.add(arrivedButton);
+
+		add(northPanel, BorderLayout.NORTH);
 
 		DirectionsRoute route = client.currentRoute;
 
@@ -88,14 +91,12 @@ public class NavigationPanel extends JPanel
 
 			Duration duration = Duration.ofMillis((long) (route.getDuration() * 1000.0));
 
-			JLabel durationLabel = new JLabel(I18n.translate("route.duration",
+			JLabel durationLabel = new JLabel(I18n.translate("navigation.duration",
 					duration.toMinutesPart(), duration.toSecondsPart()));
-			durationLabel.setForeground(Color.WHITE);
-			durationLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+			durationLabel.setFont(client.theme.createFont(20));
 
-			JLabel distanceLabel = new JLabel(I18n.translate("route.distance", route.getDistance()));
-			distanceLabel.setForeground(Color.WHITE);
-			distanceLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+			JLabel distanceLabel = new JLabel(I18n.translate("navigation.distance", route.getDistance()));
+			distanceLabel.setFont(client.theme.createFont(20));
 
 			JPanel routeInfoPanel = new JPanel();
 			routeInfoPanel.setLayout(new BoxLayout(routeInfoPanel, BoxLayout.LINE_AXIS));

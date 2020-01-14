@@ -47,6 +47,8 @@ dependencies {
 
     compile group: 'org.mozilla.deepspeech', name: 'libdeepspeech-desktop', version: '1.0-SNAPSHOT'
 
+    compile 'uk.co.caprica:vlcj:4.1.0'
+
     implementation 'org.jetbrains:annotations:15.0'
 }
 
