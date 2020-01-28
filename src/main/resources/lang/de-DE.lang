@@ -7,3 +7,7 @@ call.deny=Ablehnen
 navigation.duration=%d Minuten und %d Sekunden
 navigation.distance=%.0f Meter
 navigation.arrived=bereits angekommen
+
+instructions.video.pause=Pause
+instructions.video.continue=Fortsetzen
+instructions.video.play_again=Nochmal ansehen

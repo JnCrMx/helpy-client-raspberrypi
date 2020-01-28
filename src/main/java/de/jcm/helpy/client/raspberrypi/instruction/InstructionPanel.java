@@ -5,7 +5,11 @@ import de.jcm.helpy.client.raspberrypi.I18n;
 import de.jcm.helpy.content.ContentForm;
 import de.jcm.helpy.content.ContentOption;
 import de.jcm.helpy.content.ContentPage;
-import uk.co.caprica.vlcj.media.*;
+import uk.co.caprica.vlcj.media.MediaEventListener;
+import uk.co.caprica.vlcj.media.MediaRef;
+import uk.co.caprica.vlcj.player.base.MediaPlayer;
+import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 import javax.swing.*;
@@ -37,6 +41,7 @@ public class InstructionPanel extends JPanel
 
 	private JLabel imageLabel;
 	private EmbeddedMediaPlayerComponent mediaPlayerComponent;
+	private JButton controlButton;
 
 	private JPanel optionButtonPanel;
 	private JButton[] optionButtons;
@@ -64,7 +69,7 @@ public class InstructionPanel extends JPanel
 				instructionPanel.add(helpTextPanel, BorderLayout.CENTER);
 			}
 
-			JPanel mediaPanel = new JPanel();
+			JPanel mediaPanel = new JPanel(new BorderLayout());
 			mainPanel.add(mediaPanel, BorderLayout.CENTER);
 			{
 				imageLabel = new JLabel();
@@ -73,7 +78,53 @@ public class InstructionPanel extends JPanel
 
 				mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
 				mediaPlayerComponent.setVisible(false);
+				mediaPlayerComponent.mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter()
+				{
+					@Override
+					public void playing(MediaPlayer mediaPlayer)
+					{
+						controlButton.setText(I18n.translate("instructions.video.pause"));
+						controlButton.setActionCommand("pause");
+					}
+
+					@Override
+					public void paused(MediaPlayer mediaPlayer)
+					{
+						controlButton.setText(I18n.translate("instructions.video.continue"));
+						controlButton.setActionCommand("continue");
+					}
+
+					@Override
+					public void finished(MediaPlayer mediaPlayer)
+					{
+						controlButton.setText(I18n.translate("instructions.video.play_again"));
+						controlButton.setActionCommand("replay");
+					}
+				});
 				mediaPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
+
+				controlButton = new JButton();
+				controlButton.setFont(client.theme.createFont(30));
+				controlButton.setVisible(false);
+				controlButton.addActionListener(e->
+				{
+					if(e.getActionCommand().equals("pause"))
+					{
+						mediaPlayerComponent.mediaPlayer().controls().pause();
+					}
+					if(e.getActionCommand().equals("continue"))
+					{
+						mediaPlayerComponent.mediaPlayer().controls().play();
+					}
+					if(e.getActionCommand().equals("replay"))
+					{
+						mediaPlayerComponent.mediaPlayer().controls().play();
+					}
+				});
+				JPanel controlPanel = new JPanel(new FlowLayout());
+				controlPanel.add(controlButton);
+
+				mediaPanel.add(controlPanel, BorderLayout.SOUTH);
 			}
 
 			optionButtonPanel = new JPanel();
@@ -165,6 +216,7 @@ public class InstructionPanel extends JPanel
 
 		imageLabel.setVisible(false);
 		mediaPlayerComponent.setVisible(false);
+		controlButton.setVisible(false);
 		if(currentPage.image!=null)
 		{
 			// all possible locations to search for assets in
