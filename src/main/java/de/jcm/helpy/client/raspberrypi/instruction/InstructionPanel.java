@@ -5,11 +5,9 @@ import de.jcm.helpy.client.raspberrypi.I18n;
 import de.jcm.helpy.content.ContentForm;
 import de.jcm.helpy.content.ContentOption;
 import de.jcm.helpy.content.ContentPage;
-import uk.co.caprica.vlcj.media.MediaEventListener;
 import uk.co.caprica.vlcj.media.MediaRef;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
-import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 import javax.swing.*;
@@ -20,30 +18,29 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.Flow;
 import java.util.stream.Stream;
 
 public class InstructionPanel extends JPanel
 {
 	// File handling stuff
-	private HelpyClient client = null;
+	private HelpyClient client;
 
-	private File contentDirectory;
+	private final File contentDirectory;
 
 	private ContentPage currentPage;
 	private File currentFile;
 
 	// Swing components
-	private JLabel shortMessageLabel;
+	private final JLabel shortMessageLabel;
 
-	private JPanel helpTextPanel;
+	private final JPanel helpTextPanel;
 	private JLabel[] helpTextLabels;
 
-	private JLabel imageLabel;
-	private EmbeddedMediaPlayerComponent mediaPlayerComponent;
+	private final JLabel imageLabel;
+	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JButton controlButton;
 
-	private JPanel optionButtonPanel;
+	private final JPanel optionButtonPanel;
 	private JButton[] optionButtons;
 
 	public InstructionPanel(HelpyClient client)

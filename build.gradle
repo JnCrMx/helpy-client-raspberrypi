@@ -6,13 +6,13 @@ plugins {
 group 'de.jcm.helpy'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
     mavenLocal()
     maven { url 'https://jitpack.io' }
-    jcenter();
+    jcenter()
 }
 
 dependencies {

@@ -15,13 +15,13 @@ import java.util.HashMap;
 public class ContentUtils
 {
 	private final ObjectMapper mapper = new ObjectMapper();
-	private File contentDirectory;
+	private final File contentDirectory;
 
 	/*
 	The InstructionUpdateRunnable needs to read the page in order to calculate the next one.
 	This is repeated constantly. Therefore better cache the read pages to save time and file accesses.
 	 */
-	private HashMap<String, ContentPage> pageCache = new HashMap<>();
+	private final HashMap<String, ContentPage> pageCache = new HashMap<>();
 
 	public ContentUtils(HelpyClient client)
 	{

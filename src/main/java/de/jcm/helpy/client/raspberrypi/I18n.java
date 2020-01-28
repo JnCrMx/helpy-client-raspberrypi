@@ -9,10 +9,10 @@ import java.util.Scanner;
 
 public class I18n
 {
-	private static Logger logger = LoggerFactory.getLogger(I18n.class);
+	private static final Logger logger = LoggerFactory.getLogger(I18n.class);
 
 	private static Locale currentLanguage;
-	private static HashMap<Locale, HashMap<String, String>> languages = new HashMap<>();
+	private static final HashMap<Locale, HashMap<String, String>> languages = new HashMap<>();
 
 	public static String getLanguageEntry(String key)
 	{

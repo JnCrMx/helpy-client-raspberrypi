@@ -3,7 +3,6 @@ package de.jcm.helpy.client.raspberrypi;
 import com.mapbox.services.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.services.commons.utils.PolylineUtils;
 import de.jcm.helpy.Call;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mapsforge.core.graphics.Cap;
 import org.mapsforge.core.graphics.Join;
@@ -53,10 +52,8 @@ public class CallAnnouncement extends JDialog
 		{
 			List<LatLong> points = new ArrayList<>();
 			route.getLegs().get(0).getSteps().forEach(s ->
-			{
-				PolylineUtils.decode(s.getGeometry(), 5)
-						.forEach(p->points.add(new LatLong(p.getLatitude(), p.getLongitude())));
-			});
+					PolylineUtils.decode(s.getGeometry(), 5)
+							.forEach(p->points.add(new LatLong(p.getLatitude(), p.getLongitude()))));
 
 			MapView mapView = new MapView();
 			TileCache tileCache = AwtUtil.createTileCache(

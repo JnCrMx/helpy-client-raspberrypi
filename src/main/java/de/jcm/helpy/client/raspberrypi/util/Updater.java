@@ -7,7 +7,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -17,7 +16,6 @@ import java.util.zip.ZipFile;
 public class Updater
 {
 	private final HelpyClient client;
-	@SuppressWarnings("FieldCanBeLocal")
 	public final File downloadDirectory;
 
 	private final boolean contentUpdate;

@@ -50,10 +50,8 @@ public class NavigationPanel extends JPanel
 		{
 			List<LatLong> points = new ArrayList<>();
 			route.getLegs().get(0).getSteps().forEach(s ->
-			{
-				PolylineUtils.decode(s.getGeometry(), 5)
-						.forEach(p -> points.add(new LatLong(p.getLatitude(), p.getLongitude())));
-			});
+					PolylineUtils.decode(s.getGeometry(), 5)
+							.forEach(p -> points.add(new LatLong(p.getLatitude(), p.getLongitude()))));
 
 			MapView mapView = new MapView();
 			TileCache tileCache = AwtUtil.createTileCache(

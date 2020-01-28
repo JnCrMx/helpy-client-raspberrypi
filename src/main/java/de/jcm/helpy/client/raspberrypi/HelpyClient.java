@@ -38,8 +38,6 @@ import java.util.concurrent.TimeUnit;
 
 public class HelpyClient extends JFrame
 {
-	public static final boolean DEBUG = true;
-
 	public final ScheduledExecutorService executor =
 			Executors.newSingleThreadScheduledExecutor(runnable ->
 			{
@@ -62,10 +60,11 @@ public class HelpyClient extends JFrame
 	private ScheduledFuture<?> instructionFuture;
 
 	private CallAnnouncement announcement;
-	public List<Integer> deniedCalls = new ArrayList<>();
+	public final List<Integer> deniedCalls = new ArrayList<>();
 
 	public Call currentCall;
 	public DirectionsRoute currentRoute;
+	//TODO: What was the purpose of this?
 	public CallPhase phase;
 
 	private Rectangle bounds;
@@ -159,6 +158,7 @@ public class HelpyClient extends JFrame
 
 	private void shutdown()
 	{
+		instructionFuture.cancel(true);
 		searchFuture.cancel(true);
 	}
 

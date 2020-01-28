@@ -9,7 +9,7 @@ import java.util.Comparator;
 
 public class CallSearchRunnable implements Runnable
 {
-	private HelpyClient client;
+	private final HelpyClient client;
 
 	public CallSearchRunnable(HelpyClient client)
 	{
