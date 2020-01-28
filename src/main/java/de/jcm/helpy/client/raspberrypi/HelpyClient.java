@@ -8,10 +8,12 @@ import de.jcm.helpy.EntityInCallState;
 import de.jcm.helpy.api.HelpyApi;
 import de.jcm.helpy.api.authentication.StaticTokenProvider;
 import de.jcm.helpy.client.raspberrypi.instruction.InstructionPanel;
+import de.jcm.helpy.client.raspberrypi.instruction.InstructionUpdateRunnable;
 import de.jcm.helpy.client.raspberrypi.navigation.NavigationPanel;
 import de.jcm.helpy.client.raspberrypi.routing.OSRMApi;
 import de.jcm.helpy.client.raspberrypi.speech.SpeechToText;
 import de.jcm.helpy.client.raspberrypi.speech.TextToSpeech;
+import de.jcm.helpy.client.raspberrypi.util.ContentUtils;
 import de.jcm.helpy.client.raspberrypi.util.UITheme;
 import de.jcm.helpy.client.raspberrypi.util.Updater;
 import marytts.exceptions.MaryConfigurationException;
@@ -57,6 +59,7 @@ public class HelpyClient extends JFrame
 	public SpeechToText stt;
 
 	private ScheduledFuture<?> searchFuture;
+	private ScheduledFuture<?> instructionFuture;
 
 	private CallAnnouncement announcement;
 	public List<Integer> deniedCalls = new ArrayList<>();
@@ -70,6 +73,8 @@ public class HelpyClient extends JFrame
 
 	public File dataDirectory;
 	public Updater updater;
+
+	public ContentUtils contentUtils;
 
 	public HelpyClient() throws ConfigurationException, IllegalStateException,
 			MaryConfigurationException, IOException, LineUnavailableException
@@ -144,6 +149,8 @@ public class HelpyClient extends JFrame
 		}
 		SwingUtilities.updateComponentTreeUI(this);
 
+		contentUtils = new ContentUtils(this);
+
 		CallSearchRunnable searchRunnable = new CallSearchRunnable(this);
 		searchFuture = executor.scheduleWithFixedDelay(searchRunnable, 0, 10, TimeUnit.SECONDS);
 
@@ -196,11 +203,16 @@ public class HelpyClient extends JFrame
 	{
 		api.calls().join(currentCall, EntityInCallState.PRESENT);
 
+		InstructionPanel instructionPanel = new InstructionPanel(this);
+
 		//TODO: improve this stupid and ugly solution
 		getContentPane().remove(getContentPane().getComponentCount()-1);
-		getContentPane().add(new InstructionPanel(this), BorderLayout.CENTER);
+		getContentPane().add(instructionPanel, BorderLayout.CENTER);
 		revalidate();
 		repaint();
+
+		instructionFuture = executor.scheduleWithFixedDelay(
+				new InstructionUpdateRunnable(this, instructionPanel), 0, 1, TimeUnit.SECONDS);
 	}
 
 	public static void main(String[] args)

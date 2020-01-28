@@ -1,9 +1,9 @@
 package de.jcm.helpy.client.raspberrypi.instruction;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.jcm.helpy.client.raspberrypi.HelpyClient;
 import de.jcm.helpy.client.raspberrypi.I18n;
 import de.jcm.helpy.content.ContentForm;
+import de.jcm.helpy.content.ContentOption;
 import de.jcm.helpy.content.ContentPage;
 import uk.co.caprica.vlcj.media.*;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
@@ -12,25 +12,24 @@ import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.concurrent.Flow;
 import java.util.stream.Stream;
 
 public class InstructionPanel extends JPanel
 {
-	private final ObjectMapper mapper = new ObjectMapper();
-	private final HelpyClient client;
+	// File handling stuff
+	private HelpyClient client = null;
 
 	private File contentDirectory;
+
 	private ContentPage currentPage;
 	private File currentFile;
 
+	// Swing components
 	private JLabel shortMessageLabel;
 
 	private JPanel helpTextPanel;
@@ -106,33 +105,38 @@ public class InstructionPanel extends JPanel
 		});
 	}
 
-	public void loadPage(String name)
+	public void loadPage(String path)
 	{
 		try
 		{
-			currentFile = new File(contentDirectory, name+".json");
-			// somehow our ObjectMapper doesn't use UTF-8 by default, so we use an UTF-8 Reader
-			Reader reader = new FileReader(currentFile, StandardCharsets.UTF_8);
+			File newFile = new File(contentDirectory, path+".json");
+			// Only load page if it isn't already loaded.
+			if(currentFile==null || !currentFile.getAbsolutePath().equals(newFile.getAbsolutePath()))
+			{
+				currentFile = newFile;
 
-			currentPage = mapper.readValue(reader, ContentPage.class);
-			reader.close();
+				System.err.println("Load page \""+path+"\" from \""+currentFile.getAbsolutePath()+"\"");
+
+				currentPage = client.contentUtils.readPage(path);
+				refreshPage();
+			}
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		refreshPage();
 	}
 
 	private final ActionListener optionButtonActionListener = e->
 	{
-		if(e.getSource() instanceof JButton)
+		if(e.getSource() instanceof OptionButton)
 		{
-			JButton button = (JButton) e.getSource();
-			if(button.getParent() == optionButtonPanel)
-			{
-				loadPage(e.getActionCommand());
-			}
+			OptionButton button = (OptionButton) e.getSource();
+
+			String oldPath = client.contentUtils.fileToPath(currentFile);
+			client.api.calls().addCallInteraction(client.currentCall, currentPage, oldPath, button.getOption());
+
+			loadPage(client.contentUtils.getTarget(oldPath, button.getOption().target));
 		}
 	};
 
@@ -147,11 +151,9 @@ public class InstructionPanel extends JPanel
 			optionButtonPanel.add(Box.createHorizontalGlue());  // center horizontally
 			for(int i=0; i<currentPage.options.length; i++)
 			{
-				optionButtons[i] = new JButton(currentPage.options[i].answers[0]);
-				optionButtons[i].setActionCommand(currentPage.options[i].target);
-				optionButtons[i].setFont(client.theme.createFont(50));
-				optionButtons[i].setMargin(new Insets(10, 10, 10, 10));
+				optionButtons[i] = new OptionButton(currentPage.options[i]);
 				optionButtons[i].addActionListener(optionButtonActionListener);
+
 				optionButtonPanel.add(optionButtons[i]);
 				if((i + 1) < currentPage.options.length)
 					optionButtonPanel.add(Box.createHorizontalStrut(50));
@@ -201,12 +203,33 @@ public class InstructionPanel extends JPanel
 				mediaPlayerComponent.mediaPlayer().controls().play();
 
 				mediaPlayerComponent.setVisible(true);
+				controlButton.setVisible(true);
 			}
 			else
 			{
 				System.err.println("Could not find video file \""+currentPage.video+
 						"\" from content page \""+currentFile.getAbsolutePath()+"\"!");
 			}
+		}
+	}
+
+	private class OptionButton extends JButton
+	{
+		private final ContentOption option;
+
+		public OptionButton(ContentOption option)
+		{
+			super(option.answers[0]);
+
+			this.option = option;
+
+			setFont(client.theme.createFont(50));
+			setMargin(new Insets(10, 10, 10, 10));
+		}
+
+		public ContentOption getOption()
+		{
+			return option;
 		}
 	}
 }
