@@ -212,6 +212,8 @@ public class HelpyClient extends JFrame
 
 		announcement.setVisible(false);
 
+		//TODO: improve this stupid and ugly solution
+		getContentPane().remove(getContentPane().getComponentCount()-1);
 		getContentPane().add(new NavigationPanel(this), BorderLayout.CENTER);
 		revalidate();
 		repaint();
