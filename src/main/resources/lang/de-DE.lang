@@ -1,5 +1,6 @@
 client.started=Helpy Client gestartet!
 
+call.make=Notruf absetzen
 call.announce=Neuer Notruf!
 call.accept=Annehmen
 call.deny=Ablehnen

@@ -96,7 +96,25 @@ public class HelpyClient extends JFrame
 
 		panel.add(headPanel, BorderLayout.NORTH);
 
+		JPanel callButtonWrapper = new JPanel();
+		JButton callButton = new JButton(I18n.translate("call.make"));
+		callButton.setFont(theme.createFont(100));
+		callButton.addActionListener(e->createCall());
+		callButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		callButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+		callButtonWrapper.setLayout(new BoxLayout(callButtonWrapper, BoxLayout.Y_AXIS));
+		callButtonWrapper.add(javax.swing.Box.createVerticalGlue());
+		callButtonWrapper.add(callButton);
+		callButtonWrapper.add(javax.swing.Box.createVerticalGlue());
+		panel.add(callButtonWrapper, BorderLayout.CENTER);
+
 		setContentPane(panel);
+	}
+
+	private void createCall()
+	{
+		currentCall = api.calls().createCall(self.location);
+		callNavigationArrived();
 	}
 
 	private void init() throws ConfigurationException, MaryConfigurationException, IOException, LineUnavailableException
