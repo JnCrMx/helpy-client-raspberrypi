@@ -2,6 +2,7 @@ package de.jcm.helpy.client.raspberrypi.instruction;
 
 import de.jcm.helpy.CallInteraction;
 import de.jcm.helpy.client.raspberrypi.HelpyClient;
+import de.jcm.helpy.content.ContentOption;
 import de.jcm.helpy.content.ContentPage;
 
 import java.io.IOException;
@@ -31,10 +32,21 @@ public class InstructionUpdateRunnable implements Runnable
 				assert page.language.equals(interaction.language);
 				assert page.options.length > interaction.chosenOption;
 
-				String target = client.contentUtils.getTarget(interaction.contentPath,
-						page.options[interaction.chosenOption].target);
+				ContentOption chosen = page.options[interaction.chosenOption];
+				if(chosen.message!=null && !chosen.message.isBlank())
+				{
+					instructionPanel.popup(chosen.message);
+				}
 
-				instructionPanel.loadPage(target);
+				if(chosen.target!=null && !chosen.target.isBlank())
+				{
+					String target = client.contentUtils.getTarget(interaction.contentPath, chosen.target);
+					instructionPanel.loadPage(target);
+				}
+				else
+				{
+					//TODO: end instruction flow here
+				}
 			}
 			catch (IOException e)
 			{

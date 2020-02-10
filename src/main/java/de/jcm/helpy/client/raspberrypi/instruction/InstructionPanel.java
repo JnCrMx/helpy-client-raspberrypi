@@ -184,9 +184,29 @@ public class InstructionPanel extends JPanel
 			String oldPath = client.contentUtils.fileToPath(currentFile);
 			client.api.calls().addCallInteraction(client.currentCall, currentPage, oldPath, button.getOption());
 
-			loadPage(client.contentUtils.getTarget(oldPath, button.getOption().target));
+			if(button.getOption().message!=null && !button.getOption().message.isBlank())
+			{
+				popup(button.getOption().message);
+			}
+
+			if(button.getOption().target!=null && !button.getOption().target.isBlank())
+			{
+				loadPage(client.contentUtils.getTarget(oldPath, button.getOption().target));
+			}
+			else
+			{
+				//TODO: end instruction flow here
+			}
 		}
 	};
+
+	public void popup(String message)
+	{
+		EventQueue.invokeLater(()->
+		{
+			JOptionPane.showMessageDialog(null, message);
+		});
+	}
 
 	private void refreshPage()
 	{
