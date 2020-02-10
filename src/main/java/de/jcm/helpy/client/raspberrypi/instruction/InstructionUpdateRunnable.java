@@ -35,7 +35,8 @@ public class InstructionUpdateRunnable implements Runnable
 				ContentOption chosen = page.options[interaction.chosenOption];
 				if(chosen.message!=null && !chosen.message.isBlank())
 				{
-					instructionPanel.popup(chosen.message);
+					//TODO: test if message already shown
+					//instructionPanel.popup(chosen.message);
 				}
 
 				if(chosen.target!=null && !chosen.target.isBlank())

@@ -10,6 +10,7 @@ import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
@@ -17,6 +18,8 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -36,9 +39,11 @@ public class InstructionPanel extends JPanel
 	private final JPanel helpTextPanel;
 	private JLabel[] helpTextLabels;
 
+	private final JPanel mediaPanel;
 	private final JLabel imageLabel;
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JButton controlButton;
+	private final JPanel videoControlPanel;
 
 	private final JPanel optionButtonPanel;
 	private JButton[] optionButtons;
@@ -66,15 +71,12 @@ public class InstructionPanel extends JPanel
 				instructionPanel.add(helpTextPanel, BorderLayout.CENTER);
 			}
 
-			JPanel mediaPanel = new JPanel(new BorderLayout());
+			mediaPanel = new JPanel(new BorderLayout());
 			mainPanel.add(mediaPanel, BorderLayout.CENTER);
 			{
-				imageLabel = new JLabel();
-				imageLabel.setVisible(false);
-				mediaPanel.add(imageLabel, BorderLayout.CENTER);
+				imageLabel = new JLabel("", JLabel.CENTER);
 
 				mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
-				mediaPlayerComponent.setVisible(false);
 				mediaPlayerComponent.mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter()
 				{
 					@Override
@@ -98,11 +100,9 @@ public class InstructionPanel extends JPanel
 						controlButton.setActionCommand("replay");
 					}
 				});
-				mediaPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
 
 				controlButton = new JButton();
 				controlButton.setFont(client.theme.createFont(30));
-				controlButton.setVisible(false);
 				controlButton.addActionListener(e->
 				{
 					if(e.getActionCommand().equals("pause"))
@@ -118,10 +118,8 @@ public class InstructionPanel extends JPanel
 						mediaPlayerComponent.mediaPlayer().controls().play();
 					}
 				});
-				JPanel controlPanel = new JPanel(new FlowLayout());
-				controlPanel.add(controlButton);
-
-				mediaPanel.add(controlPanel, BorderLayout.SOUTH);
+				videoControlPanel = new JPanel(new FlowLayout());
+				videoControlPanel.add(controlButton);
 			}
 
 			optionButtonPanel = new JPanel();
@@ -231,9 +229,7 @@ public class InstructionPanel extends JPanel
 		optionButtonPanel.revalidate();
 		optionButtonPanel.repaint();
 
-		imageLabel.setVisible(false);
-		mediaPlayerComponent.setVisible(false);
-		controlButton.setVisible(false);
+		mediaPanel.removeAll();
 		if(currentPage.image!=null)
 		{
 			// all possible locations to search for assets in
@@ -247,7 +243,30 @@ public class InstructionPanel extends JPanel
 			{
 				imageLabel.setIcon(new ImageIcon(imageFile.get().getAbsolutePath()));
 
-				imageLabel.setVisible(true);
+				mediaPanel.add(imageLabel, BorderLayout.CENTER);
+			}
+			else if(currentPage.image.startsWith("http"))
+			{
+				try
+				{
+					URL url = new URL(currentPage.image);
+					Image img = ImageIO.read(url);
+					imageLabel.setIcon(new ImageIcon(img));
+
+					mediaPanel.add(imageLabel, BorderLayout.CENTER);
+				}
+				catch (MalformedURLException e)
+				{
+					e.printStackTrace();
+					System.err.println("Could not find image file \""+currentPage.image+
+							"\" from content page \""+currentFile.getAbsolutePath()+"\"!");
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					System.err.println("Could not read image from \""+currentPage.image+
+							"\" from content page \""+currentFile.getAbsolutePath()+"\"!");
+				}
 			}
 			else
 			{
@@ -266,13 +285,23 @@ public class InstructionPanel extends JPanel
 			Optional<File> videoFile = locations.filter(File::exists).findFirst();
 			if(videoFile.isPresent())
 			{
+				mediaPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
+				mediaPanel.add(videoControlPanel, BorderLayout.SOUTH);
+
 				MediaRef media = mediaPlayerComponent.mediaPlayerFactory()
 						.media().newMediaRef(videoFile.get().getAbsolutePath());
 				mediaPlayerComponent.mediaPlayer().media().play(media);
 				mediaPlayerComponent.mediaPlayer().controls().play();
+			}
+			else if(currentPage.video.startsWith("http"))   // just hope for it being readable by VLC
+			{
+				mediaPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
+				mediaPanel.add(videoControlPanel, BorderLayout.SOUTH);
 
-				mediaPlayerComponent.setVisible(true);
-				controlButton.setVisible(true);
+				MediaRef media = mediaPlayerComponent.mediaPlayerFactory()
+						.media().newMediaRef(currentPage.video);
+				mediaPlayerComponent.mediaPlayer().media().play(media);
+				mediaPlayerComponent.mediaPlayer().controls().play();
 			}
 			else
 			{
@@ -280,6 +309,8 @@ public class InstructionPanel extends JPanel
 						"\" from content page \""+currentFile.getAbsolutePath()+"\"!");
 			}
 		}
+		mediaPanel.revalidate();
+		mediaPanel.repaint();
 	}
 
 	private class OptionButton extends JButton

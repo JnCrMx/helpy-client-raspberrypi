@@ -19,6 +19,9 @@ public class CallSearchRunnable implements Runnable
 	@Override
 	public void run()
 	{
+		if(client.currentCall!=null)
+			return;
+
 		Call[] calls = client.api.calls().inRange(client.self.location, 10000);
 
 		for (Call call:calls)
