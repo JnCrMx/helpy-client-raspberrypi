@@ -161,7 +161,7 @@ public class InstructionPanel extends JPanel
 			{
 				currentFile = newFile;
 
-				System.err.println("Load page \""+path+"\" from \""+currentFile.getAbsolutePath()+"\"");
+				System.out.println("Load page \""+path+"\" from \""+currentFile.getAbsolutePath()+"\"");
 
 				currentPage = client.contentUtils.readPage(path);
 				refreshPage();
@@ -184,6 +184,7 @@ public class InstructionPanel extends JPanel
 
 			if(button.getOption().message!=null && !button.getOption().message.isBlank())
 			{
+				client.tts.speak(button.getOption().message);
 				popup(button.getOption().message);
 			}
 
@@ -209,6 +210,8 @@ public class InstructionPanel extends JPanel
 	private void refreshPage()
 	{
 		shortMessageLabel.setText("<html><center>"+currentPage.shortMessage+"</center></html>");
+		//TODO: move somewhere else maybe?
+		client.tts.speak(currentPage.shortMessage);
 
 		optionButtonPanel.removeAll();
 		if(currentPage.form == ContentForm.PREDICAMENT || currentPage.form == ContentForm.CONTINUE)
@@ -230,6 +233,7 @@ public class InstructionPanel extends JPanel
 		optionButtonPanel.repaint();
 
 		mediaPanel.removeAll();
+		mediaPlayerComponent.mediaPlayer().controls().stop();
 		if(currentPage.image!=null)
 		{
 			// all possible locations to search for assets in
@@ -292,6 +296,44 @@ public class InstructionPanel extends JPanel
 						.media().newMediaRef(videoFile.get().getAbsolutePath());
 				mediaPlayerComponent.mediaPlayer().media().play(media);
 				mediaPlayerComponent.mediaPlayer().controls().play();
+			}
+			else if(currentPage.video.startsWith("https://www.youtube.com/watch?v="))
+			{
+				try
+				{
+					Process process = new ProcessBuilder()
+							.command("youtube-dl", "-f", "best[ext=mp4]", "-g", currentPage.video)
+							.redirectError(ProcessBuilder.Redirect.INHERIT)
+							.start();
+					int code;
+					if((code = process.waitFor())==0)
+					{
+						String url = new String(process.getInputStream().readAllBytes());
+						System.out.println("YouTube-Video url \""+currentPage.video+
+								"\" from content page \""+currentFile.getAbsolutePath()+
+								"\" resolved to \""+url+"\"!");
+
+						mediaPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
+						mediaPanel.add(videoControlPanel, BorderLayout.SOUTH);
+
+						MediaRef media = mediaPlayerComponent.mediaPlayerFactory()
+								.media().newMediaRef(url);
+						mediaPlayerComponent.mediaPlayer().media().play(media);
+						mediaPlayerComponent.mediaPlayer().controls().play();
+					}
+					else
+					{
+						System.err.println("youtube-dl failed for video \""+currentPage.video+
+								"\" from content page \""+currentFile.getAbsolutePath()+
+								"\" with exit code "+code+"!");
+					}
+				}
+				catch (IOException | InterruptedException e)
+				{
+					e.printStackTrace();
+					System.err.println("Could not invoke youtube-dl for video \""+currentPage.video+
+							"\" from content page \""+currentFile.getAbsolutePath()+"\"!");
+				}
 			}
 			else if(currentPage.video.startsWith("http"))   // just hope for it being readable by VLC
 			{
