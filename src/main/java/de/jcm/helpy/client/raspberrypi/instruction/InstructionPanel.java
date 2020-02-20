@@ -2,6 +2,8 @@ package de.jcm.helpy.client.raspberrypi.instruction;
 
 import de.jcm.helpy.client.raspberrypi.HelpyClient;
 import de.jcm.helpy.client.raspberrypi.I18n;
+import de.jcm.helpy.client.raspberrypi.speech.SpeechEvent;
+import de.jcm.helpy.client.raspberrypi.speech.SpeechListener;
 import de.jcm.helpy.content.ContentForm;
 import de.jcm.helpy.content.ContentOption;
 import de.jcm.helpy.content.ContentPage;
@@ -23,7 +25,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class InstructionPanel extends JPanel
+public class InstructionPanel extends JPanel implements SpeechListener
 {
 	// File handling stuff
 	private HelpyClient client;
@@ -51,6 +53,8 @@ public class InstructionPanel extends JPanel
 	public InstructionPanel(HelpyClient client)
 	{
 		this.client = client;
+
+		this.client.speechInput.addSpeechListener(this);
 
 		setLayout(new BorderLayout());
 
@@ -353,6 +357,12 @@ public class InstructionPanel extends JPanel
 		}
 		mediaPanel.revalidate();
 		mediaPanel.repaint();
+	}
+
+	@Override
+	public void onSpeechEvent(SpeechEvent event)
+	{
+
 	}
 
 	private class OptionButton extends JButton

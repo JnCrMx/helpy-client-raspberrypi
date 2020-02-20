@@ -4,6 +4,7 @@ import de.jcm.helpy.client.raspberrypi.I18n;
 import de.jcm.helpy.client.raspberrypi.util.ResourceUtils;
 import org.mozilla.deepspeech.libdeepspeech.DeepSpeechModel;
 import org.mozilla.deepspeech.libdeepspeech.DeepSpeechStreamingState;
+import org.mozilla.deepspeech.libdeepspeech.Metadata;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.io.IOException;
 public class SpeechToText
 {
 	private final DeepSpeechModel model;
-	private final DeepSpeechStreamingState stream;
+	private DeepSpeechStreamingState stream;
 
 	public SpeechToText() throws IOException
 	{
@@ -33,9 +34,14 @@ public class SpeechToText
 		stream = model.createStream();
 	}
 
-	public String sttStream(short[] buffer)
+	public String sttBuffer(short[] buffer)
 	{
 		return model.stt(buffer, buffer.length);
+	}
+
+	public Metadata sttBufferMeta(short[] buffer)
+	{
+		return model.sttWithMetadata(buffer, buffer.length);
 	}
 
 	public void feedStream(short[] buffer)
@@ -43,9 +49,23 @@ public class SpeechToText
 		model.feedAudioContent(stream, buffer, buffer.length);
 	}
 
-	public String sttStream()
+	public String sttStreamIntermediate()
 	{
 		return model.intermediateDecode(stream);
+	}
+
+	public String sttStream()
+	{
+		String string = model.finishStream(stream);
+		stream = model.createStream();
+		return string;
+	}
+
+	public Metadata sttStreamMeta()
+	{
+		Metadata meta = model.finishStreamWithMetadata(stream);
+		stream = model.createStream();
+		return meta;
 	}
 
 	public DeepSpeechModel getModel()

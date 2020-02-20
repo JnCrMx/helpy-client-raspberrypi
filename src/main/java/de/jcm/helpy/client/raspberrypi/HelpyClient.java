@@ -11,6 +11,7 @@ import de.jcm.helpy.client.raspberrypi.instruction.InstructionPanel;
 import de.jcm.helpy.client.raspberrypi.instruction.InstructionUpdateRunnable;
 import de.jcm.helpy.client.raspberrypi.navigation.NavigationPanel;
 import de.jcm.helpy.client.raspberrypi.routing.OSRMApi;
+import de.jcm.helpy.client.raspberrypi.speech.SpeechInputThread;
 import de.jcm.helpy.client.raspberrypi.speech.SpeechToText;
 import de.jcm.helpy.client.raspberrypi.speech.TextToSpeech;
 import de.jcm.helpy.client.raspberrypi.util.ContentUtils;
@@ -55,6 +56,7 @@ public class HelpyClient extends JFrame
 
 	public TextToSpeech tts;
 	public SpeechToText stt;
+	public SpeechInputThread speechInput;
 
 	private ScheduledFuture<?> searchFuture;
 	private ScheduledFuture<?> instructionFuture;
@@ -143,6 +145,12 @@ public class HelpyClient extends JFrame
 
 		tts = new TextToSpeech();
 		stt = new SpeechToText();
+
+		//TODO: move somewhere else
+		speechInput = new SpeechInputThread(this);
+		speechInput.start();
+		// Debug
+		speechInput.addSpeechListener(System.out::println);
 
 		ObjectMapper mapper = new ObjectMapper();
 		InputStream themeIn = getClass().getResourceAsStream("/theme/"+
