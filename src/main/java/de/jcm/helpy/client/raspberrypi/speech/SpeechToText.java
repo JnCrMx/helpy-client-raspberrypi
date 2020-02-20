@@ -17,7 +17,11 @@ public class SpeechToText
 	{
 		String base = "/model/"+I18n.getLanguage().toLanguageTag();
 
-		File modelFile = ResourceUtils.extractResource(base+"/output_graph.pb");
+		File modelFile;
+		if(System.getProperty("os.arch").equals("arm"))
+			modelFile = ResourceUtils.extractResource(base+"/output_graph.tflite");
+		else
+			modelFile = ResourceUtils.extractResource(base+"/output_graph.pb");
 		File lmFile = ResourceUtils.extractResource(base+"/lm.binary");
 		File trieFile = ResourceUtils.extractResource(base+"/trie");
 
