@@ -103,7 +103,7 @@ public class CallAnnouncement extends JDialog
 			polyline.addPoints(points);
 			mapView.addLayer(polyline);
 
-			mapView.setPreferredSize(new Dimension(500, 500));
+			mapView.setPreferredSize(new Dimension(250, 250));
 			contentPane.add(mapView);
 
 			Duration duration = Duration.ofMillis((long) (route.getDuration()*1000.0));

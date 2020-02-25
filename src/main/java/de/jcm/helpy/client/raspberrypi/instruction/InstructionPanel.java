@@ -86,6 +86,7 @@ public class InstructionPanel extends JPanel implements SpeechListener
 					@Override
 					public void playing(MediaPlayer mediaPlayer)
 					{
+						controlButton.setEnabled(true);
 						controlButton.setText(I18n.translate("instructions.video.pause"));
 						controlButton.setActionCommand("pause");
 					}
@@ -93,6 +94,7 @@ public class InstructionPanel extends JPanel implements SpeechListener
 					@Override
 					public void paused(MediaPlayer mediaPlayer)
 					{
+						controlButton.setEnabled(true);
 						controlButton.setText(I18n.translate("instructions.video.continue"));
 						controlButton.setActionCommand("continue");
 					}
@@ -100,12 +102,14 @@ public class InstructionPanel extends JPanel implements SpeechListener
 					@Override
 					public void finished(MediaPlayer mediaPlayer)
 					{
+						controlButton.setEnabled(true);
 						controlButton.setText(I18n.translate("instructions.video.play_again"));
 						controlButton.setActionCommand("replay");
 					}
 				});
 
-				controlButton = new JButton();
+				controlButton = new JButton(I18n.translate("instructions.video.loading"));
+				controlButton.setEnabled(false);
 				controlButton.setFont(client.theme.createFont(30));
 				controlButton.addActionListener(e->
 				{
