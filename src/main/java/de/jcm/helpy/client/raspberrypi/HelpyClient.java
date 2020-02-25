@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class HelpyClient extends JFrame
 {
@@ -77,6 +79,9 @@ public class HelpyClient extends JFrame
 
 	public ContentUtils contentUtils;
 
+	private final JPanel menuPanel;
+	private final JPanel callButtonWrapper;
+
 	public HelpyClient() throws ConfigurationException, IllegalStateException,
 			MaryConfigurationException, IOException, LineUnavailableException
 	{
@@ -89,16 +94,27 @@ public class HelpyClient extends JFrame
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 
+		menuPanel = new JPanel();
+		menuPanel.setVisible(false);
+		menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.PAGE_AXIS));
+		buildMenu();
+		panel.add(menuPanel, BorderLayout.WEST);
+
 		JPanel headPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 
 		JButton menuButton = new JButton(new ImageIcon(getClass().getResource("/icons/menu.png")));
 		menuButton.setBorderPainted(false);
 		menuButton.setFocusPainted(false);
 		headPanel.add(menuButton);
+		menuButton.addActionListener(e->
+									{
+		                             	menuPanel.setVisible(!menuPanel.isVisible());
+		                             	EventQueue.invokeLater(this::updateMenuWidth);
+									});
 
 		panel.add(headPanel, BorderLayout.NORTH);
 
-		JPanel callButtonWrapper = new JPanel();
+		callButtonWrapper = new JPanel();
 		JButton callButton = new JButton(I18n.translate("call.make"));
 		callButton.setFont(theme.createFont(100));
 		callButton.addActionListener(e->createCall());
@@ -111,6 +127,50 @@ public class HelpyClient extends JFrame
 		panel.add(callButtonWrapper, BorderLayout.CENTER);
 
 		setContentPane(panel);
+	}
+
+	private void buildMenu()
+	{
+		menuPanel.removeAll();
+
+		if(currentCall != null)
+		{
+			JButton endCallButton = new JButton(new AbstractAction(I18n.translate("menu.end_call"))
+			{
+				@Override
+				public void actionPerformed(ActionEvent actionEvent)
+				{
+					currentCall = null;
+					currentRoute = null;
+
+					//TODO: improve this stupid and ugly solution
+					HelpyClient.this.getContentPane().remove(getContentPane().getComponentCount()-1);
+					HelpyClient.this.getContentPane().add(callButtonWrapper);
+					HelpyClient.this.revalidate();
+					HelpyClient.this.repaint();
+
+					buildMenu();
+					menuPanel.setVisible(false);
+				}
+			});
+			menuPanel.add(endCallButton);
+		}
+
+		JButton exitButton = new JButton(new AbstractAction(I18n.translate("menu.exit"))
+		{
+			@Override
+			public void actionPerformed(ActionEvent actionEvent)
+			{
+				shutdown();
+			}
+		});
+		menuPanel.add(exitButton);
+	}
+
+	private void updateMenuWidth()
+	{
+		Stream.of(menuPanel.getComponents())
+		      .forEach(c->c.setSize(new Dimension(menuPanel.getWidth(), c.getHeight())));
 	}
 
 	private void createCall()
@@ -184,8 +244,12 @@ public class HelpyClient extends JFrame
 
 	private void shutdown()
 	{
-		instructionFuture.cancel(true);
-		searchFuture.cancel(true);
+		if(instructionFuture!=null)
+			instructionFuture.cancel(true);
+		if(searchFuture!=null)
+			searchFuture.cancel(true);
+
+		System.exit(0);
 	}
 
 	public void announceCall(Call call, @Nullable DirectionsRoute route)
@@ -225,6 +289,8 @@ public class HelpyClient extends JFrame
 		getContentPane().add(new NavigationPanel(this), BorderLayout.CENTER);
 		revalidate();
 		repaint();
+
+		buildMenu();
 	}
 
 	public void callNavigationArrived()
@@ -241,6 +307,8 @@ public class HelpyClient extends JFrame
 
 		instructionFuture = executor.scheduleWithFixedDelay(
 				new InstructionUpdateRunnable(this, instructionPanel), 0, 1, TimeUnit.SECONDS);
+
+		buildMenu();
 	}
 
 	public static void main(String[] args)
