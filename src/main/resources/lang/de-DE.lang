@@ -13,3 +13,6 @@ instructions.video.pause=Pause
 instructions.video.continue=Fortsetzen
 instructions.video.play_again=Nochmal ansehen
 instructions.video.loading=Lädt...
+
+menu.exit=Beenden
+menu.end_call=Notruf beenden
