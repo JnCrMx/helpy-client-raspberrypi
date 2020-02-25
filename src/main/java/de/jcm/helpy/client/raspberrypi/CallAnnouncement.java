@@ -147,5 +147,6 @@ public class CallAnnouncement extends JDialog
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setAlwaysOnTop(true);
+		requestFocus();
 	}
 }
