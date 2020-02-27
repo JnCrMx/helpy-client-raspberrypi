@@ -41,6 +41,8 @@ import java.util.stream.Stream;
 
 public class HelpyClient extends JFrame
 {
+	public static final Configurations configs = new Configurations();
+
 	public final ScheduledExecutorService executor =
 			Executors.newSingleThreadScheduledExecutor(runnable ->
 			{
@@ -184,7 +186,6 @@ public class HelpyClient extends JFrame
 		dataDirectory = new File(System.getProperty("user.home"), ".helpy");
 		dataDirectory.mkdir();
 
-		Configurations configs = new Configurations();
 		config = configs.properties(new File(dataDirectory, "helpy-client.properties"));
 
 		I18n.setLocale(Locale.forLanguageTag(config.getString("language", Locale.UK.toLanguageTag())));
