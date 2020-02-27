@@ -131,6 +131,55 @@ public class NavigationPanel extends JPanel
 					}
 				}
 			});
+
+			JPanel mapNavigationPanel = new JPanel();
+			{
+				JButton zoomIn = new JButton(new ImageIcon(HelpyClient.class.getResource("/icons/zoom_in.png")));
+				zoomIn.addActionListener(e -> EventQueue.invokeLater(
+						() ->
+						{
+							Model model = mapView.getModel();
+							model.mapViewPosition.setZoomLevel((byte) (model.mapViewPosition.getZoomLevel()+1));
+						})
+				);
+				zoomIn.setAlignmentY(Component.TOP_ALIGNMENT);
+				mapNavigationPanel.add(zoomIn);
+
+				mapNavigationPanel.add(Box.createVerticalGlue());
+
+				JButton centerMap = new JButton(new ImageIcon(HelpyClient.class.getResource("/icons/center.png")));
+				centerMap.addActionListener(e -> EventQueue.invokeLater(
+						() ->
+						{
+							Model model = mapView.getModel();
+							if (model.mapViewPosition.getZoomLevel() == 0 ||
+									!boundingBox.contains(model.mapViewPosition.getCenter()))
+							{
+								byte zoomLevel = LatLongUtils.zoomForBounds(model.mapViewDimension.getDimension(),
+								                                            boundingBox, model.displayModel.getTileSize());
+								model.mapViewPosition.setMapPosition(new MapPosition(boundingBox.getCenterPoint(),
+								                                                     zoomLevel));
+							}
+						})
+				);
+				centerMap.setAlignmentY(Component.CENTER_ALIGNMENT);
+				mapNavigationPanel.add(centerMap);
+
+				mapNavigationPanel.add(Box.createVerticalGlue());
+
+				JButton zoomOut = new JButton(new ImageIcon(HelpyClient.class.getResource("/icons/zoom_out.png")));
+				zoomOut.addActionListener(e -> EventQueue.invokeLater(
+						() ->
+						{
+							Model model = mapView.getModel();
+							model.mapViewPosition.setZoomLevel((byte) (model.mapViewPosition.getZoomLevel()-1));
+						})
+				);
+				zoomOut.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+				mapNavigationPanel.add(zoomOut);
+			}
+			mapNavigationPanel.setLayout(new BoxLayout(mapNavigationPanel, BoxLayout.PAGE_AXIS));
+			add(mapNavigationPanel, BorderLayout.EAST);
 		}
 	}
 }
