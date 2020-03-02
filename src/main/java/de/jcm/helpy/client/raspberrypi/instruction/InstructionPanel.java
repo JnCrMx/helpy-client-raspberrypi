@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class InstructionPanel extends JPanel implements SpeechListener
@@ -366,7 +367,32 @@ public class InstructionPanel extends JPanel implements SpeechListener
 	@Override
 	public void onSpeechEvent(SpeechEvent event)
 	{
+		String spoken = event.getResult();
+		for(int i=0; i<currentPage.options.length; i++)
+		{
+			ContentOption option = currentPage.options[i];
+			if(Stream.of(option.answers).anyMatch(Predicate.isEqual(spoken)))
+			{
+				String oldPath = client.contentUtils.fileToPath(currentFile);
+				client.api.calls().addCallInteraction(client.currentCall, currentPage, oldPath, option);
 
+				if(option.message!=null && !option.message.isBlank())
+				{
+					client.tts.speak(option.message);
+					popup(option.message);
+				}
+
+				if(option.target!=null && !option.target.isBlank())
+				{
+					loadPage(client.contentUtils.getTarget(oldPath, option.target));
+				}
+				else
+				{
+					//TODO: end instruction flow here
+				}
+				break;
+			}
+		}
 	}
 
 	private class OptionButton extends JButton
