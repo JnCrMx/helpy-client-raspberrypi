@@ -7,7 +7,7 @@ call.deny=Ablehnen
 
 navigation.duration=%d Minuten und %d Sekunden
 navigation.distance=%.0f Meter
-navigation.arrived=bereits angekommen
+navigation.arrived=angekommen
 
 instructions.video.pause=Pause
 instructions.video.continue=Fortsetzen
